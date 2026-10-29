@@ -38,3 +38,7 @@ To rebuild the bundle after making code changes:
 ```bash
 npm run build
 ```
+
+---
+
+Created with 🤍 by [CodeWithAbby](https://codewithabby-portfolio.vercel.app/templates)

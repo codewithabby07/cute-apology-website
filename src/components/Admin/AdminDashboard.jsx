@@ -769,6 +769,18 @@ export default function AdminDashboard({ session, onLogout }) {
             </div>
           </div>
         )}
+        {/* Bottom Footer Credit */}
+        <footer className="pt-8 pb-4 text-center text-xs text-gray-400 border-t border-[#f1dede]">
+          <span>Created by </span>
+          <a
+            href="https://codewithabby-portfolio.vercel.app/templates"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[#d84b5a] hover:underline"
+          >
+            CodeWithAbby
+          </a>
+        </footer>
       </main>
 
       {/* ============================================================================== */}

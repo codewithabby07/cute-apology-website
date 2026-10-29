@@ -77,6 +77,18 @@ export default function PersonalizedView({ slug }) {
           >
             Go to Home
           </a>
+
+          <div className="mt-8 pt-4 border-t border-gray-100 text-xs text-gray-400">
+            <span>Created by </span>
+            <a
+              href="https://codewithabby-portfolio.vercel.app/templates"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#d84b5a] hover:underline"
+            >
+              CodeWithAbby
+            </a>
+          </div>
         </div>
       </div>
     );

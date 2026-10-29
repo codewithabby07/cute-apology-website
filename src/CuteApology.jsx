@@ -1482,7 +1482,7 @@ function CuteApologyFlow() {
         <div className="pointer-events-auto inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/80 hover:bg-white backdrop-blur-md border border-[#f1dede] shadow-sm text-[11px] sm:text-xs text-gray-500 transition-all">
           <span>Created by</span>
           <a
-            href="https://codwithabby.vercel.app/"
+            href="https://codewithabby-portfolio.vercel.app/templates"
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-[#d84b5a] hover:underline"
