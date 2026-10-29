@@ -2,9 +2,8 @@
   "name": "cute-apology-website",
   "version": "1.0.0",
   "description": "Cute Apology Website template - personalized from Gugu to Saibun",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node dev-server.js",
     "build": "node build.js"
   },
   "keywords": [
