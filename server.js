@@ -41,14 +41,20 @@ const server = http.createServer((req, res) => {
   const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
   const filePath = path.join(PUBLIC_DIR, safePath);
 
-  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('404 Not Found');
-    return;
+  let targetPath = filePath;
+  if (!fs.existsSync(targetPath) || !fs.statSync(targetPath).isFile()) {
+    const hasExtension = path.extname(reqPath) !== '';
+    if (!hasExtension || reqPath.startsWith('/p/') || reqPath.startsWith('/admin')) {
+      targetPath = path.join(PUBLIC_DIR, 'index.html');
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('404 Not Found');
+      return;
+    }
   }
 
-  const stat = fs.statSync(filePath);
-  const ext = path.extname(filePath).toLowerCase();
+  const stat = fs.statSync(targetPath);
+  const ext = path.extname(targetPath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
   // Support range requests for HTML5 Audio (.mp3)
@@ -58,7 +64,7 @@ const server = http.createServer((req, res) => {
     const start = parseInt(parts[0], 10);
     const end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1;
     const chunksize = end - start + 1;
-    const stream = fs.createReadStream(filePath, { start, end });
+    const stream = fs.createReadStream(targetPath, { start, end });
 
     res.writeHead(206, {
       'Content-Range': `bytes ${start}-${end}/${stat.size}`,
@@ -73,7 +79,7 @@ const server = http.createServer((req, res) => {
       'Content-Type': contentType,
       'Accept-Ranges': 'bytes'
     });
-    fs.createReadStream(filePath).pipe(res);
+    fs.createReadStream(targetPath).pipe(res);
   }
 });
 

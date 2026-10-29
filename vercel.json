@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/p/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!assets/|intro.gif|logo.webp|bundle.js|styles.css|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

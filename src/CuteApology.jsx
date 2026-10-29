@@ -45,11 +45,40 @@ export const defaultTemplateData = {
   thankYouFooterLine: "made with 🤍, hugs, and a lot of missing you 🎀"
 };
 
-export function transformConfig(e = defaultTemplateData) {
+export function getNamesFromURL() {
+  if (typeof window === "undefined" || !window.location) {
+    return { from: "Gugu", to: "Saibun" };
+  }
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const rawFrom = params.get("from") || params.get("From") || params.get("FROM");
+    const rawTo = params.get("to") || params.get("To") || params.get("TO");
+
+    const from = rawFrom && rawFrom.trim() ? rawFrom.trim() : "Gugu";
+    const to = rawTo && rawTo.trim() ? rawTo.trim() : "Saibun";
+
+    return { from, to };
+  } catch (e) {
+    return { from: "Gugu", to: "Saibun" };
+  }
+}
+
+export function transformConfig(e = defaultTemplateData, customNames) {
+  const names = customNames || (typeof window !== "undefined" ? getNamesFromURL() : { from: "Gugu", to: "Saibun" });
+  const from = (names.from || "Gugu").trim();
+  const to = (names.to || "Saibun").trim();
+
+  const recipientDisplay = to.toUpperCase();
+  const greetingDisplay = `To my ${to},`;
+  const toLabelDisplay = `My ${to}`;
+  const fromLabelDisplay = `Your ${from}`;
+  const signatureDisplay = `Yours always, ${from} 🐾`;
+  const gallerySigDisplay = `sealed with love, ${from} 🐾`;
+
   return {
     cover: {
       label: e.coverLabel || "TO MY",
-      recipient: e.coverRecipient || "SAIBUN",
+      recipient: recipientDisplay,
       tagline: e.coverTagline || "I'm so",
       headline: e.coverHeadline || "so so so",
       subheadline: e.coverSubheadline || "SORRY",
@@ -63,16 +92,16 @@ export function transformConfig(e = defaultTemplateData) {
     letter: {
       smallHeader: e.letterSmallHeader || "A NOTE",
       title: e.letterTitle || "Just For You 🎀",
-      greeting: e.letterGreeting || "To my Saibun,",
+      greeting: greetingDisplay,
       body: e.letterBody || "I hate it when we fight, and I hate it more when it's my fault. You matter more to me than being right ever will. I'm sorry, truly. 🤍",
-      signature: e.letterSignature || "Yours always, Gugu 🐾",
+      signature: signatureDisplay,
       imageUrl: e.letterImageUrl || "./assets/letter.png"
     },
     gallery: {
       title: e.galleryTitle || "Little Surprises",
-      fromLabel: e.galleryFromLabel || "Your Gugu",
-      toLabel: e.galleryToLabel || "My Saibun",
-      signature: e.gallerySignature || "sealed with love, Gugu 🐾",
+      fromLabel: fromLabelDisplay,
+      toLabel: toLabelDisplay,
+      signature: gallerySigDisplay,
       photos: [
         {
           url: e.galleryPhotoOneUrl || "./assets/pic1.jpg",
@@ -1467,10 +1496,29 @@ function CuteApologyFlow() {
   );
 }
 
-export default function CuteApologyApp({ config }) {
+export default function CuteApologyApp({ config, senderName, receiverName }) {
+  const [names, setNames] = useState(() => {
+    if (senderName || receiverName) {
+      return { from: senderName || "Gugu", to: receiverName || "Saibun" };
+    }
+    return getNamesFromURL();
+  });
+
+  useEffect(() => {
+    if (senderName || receiverName) {
+      setNames({ from: senderName || "Gugu", to: receiverName || "Saibun" });
+      return;
+    }
+    const handleUrlChange = () => {
+      setNames(getNamesFromURL());
+    };
+    window.addEventListener("popstate", handleUrlChange);
+    return () => window.removeEventListener("popstate", handleUrlChange);
+  }, [senderName, receiverName]);
+
   const mergedConfig = useMemo(() => {
-    return transformConfig(config || defaultTemplateData);
-  }, [config]);
+    return transformConfig(config || defaultTemplateData, names);
+  }, [config, names]);
 
   return (
     <div className="cute-apology-root">
