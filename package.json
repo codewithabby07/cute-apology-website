@@ -1,0 +1,21 @@
+{
+  "name": "cute-apology-website",
+  "version": "1.0.0",
+  "description": "Cute Apology Website template - personalized from Gugu to Saibun",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "esbuild src/index.jsx --bundle --minify --format=iife --target=es2020 --outfile=bundle.js"
+  },
+  "keywords": ["apology", "template", "cute-apology-website", "cutiepage"],
+  "author": "Gugu",
+  "license": "MIT",
+  "dependencies": {
+    "framer-motion": "^12.4.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
