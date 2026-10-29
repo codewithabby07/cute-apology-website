@@ -1366,7 +1366,7 @@ function CuteApologyFlow() {
   const [screen, setScreen] = useState(0);
 
   return (
-    <div className="min-h-screen bg-[#FBF5F4]">
+    <div className="min-h-screen bg-[#FBF5F4] relative flex flex-col justify-between">
       <AnimatePresence mode="wait">
         {screen === 0 && (
           <motion.div
@@ -1376,7 +1376,7 @@ function CuteApologyFlow() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full"
+            className="w-full h-full pb-10"
           >
             <CoverScreen onNext={() => setScreen(1)} />
           </motion.div>
@@ -1389,7 +1389,7 @@ function CuteApologyFlow() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full"
+            className="w-full h-full pb-10"
           >
             <GameScreen onBack={() => setScreen(0)} onNext={() => setScreen(2)} />
           </motion.div>
@@ -1402,7 +1402,7 @@ function CuteApologyFlow() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full"
+            className="w-full h-full pb-10"
           >
             <LetterScreen onBack={() => setScreen(1)} onNext={() => setScreen(3)} />
           </motion.div>
@@ -1415,7 +1415,7 @@ function CuteApologyFlow() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full"
+            className="w-full h-full pb-10"
           >
             <GalleryScreen onBack={() => setScreen(2)} onNext={() => setScreen(4)} />
           </motion.div>
@@ -1428,7 +1428,7 @@ function CuteApologyFlow() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full"
+            className="w-full h-full pb-10"
           >
             <PlaylistScreen onBack={() => setScreen(3)} onNext={() => setScreen(5)} />
           </motion.div>
@@ -1441,12 +1441,28 @@ function CuteApologyFlow() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full"
+            className="w-full h-full pb-10"
           >
             <ThankYouScreen onBack={() => setScreen(4)} />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Bottom Credit */}
+      <footer className="fixed bottom-2.5 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none">
+        <div className="pointer-events-auto inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/80 hover:bg-white backdrop-blur-md border border-[#f1dede] shadow-sm text-[11px] sm:text-xs text-gray-500 transition-all">
+          <span>Created by</span>
+          <a
+            href="https://codwithabby.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[#d84b5a] hover:underline"
+            style={{ textDecorationColor: "#d84b5a" }}
+          >
+            CodeWithAbby
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
