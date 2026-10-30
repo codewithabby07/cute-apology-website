@@ -207,6 +207,26 @@
     .mascot-tapped {
       animation: mascot-wiggle 0.5s ease-in-out !important;
     }
+
+    /* CodeWithAbby Watermark Pill Position: Always cleanly positioned above the bottom navigation bar so left/right buttons are never hidden */
+    .folio-watermark-container {
+      position: fixed;
+      right: 14px;
+      bottom: 74px;
+      z-index: 40;
+      pointer-events: none;
+    }
+    @media (min-width: 768px) {
+      .folio-watermark-container {
+        bottom: 74px;
+        right: 18px;
+      }
+    }
+    @media (max-width: 767px) {
+      .folio-site .folio-sound {
+        bottom: 118px !important;
+      }
+    }
   </style>
 </head>
 <body class="m-0 p-0">
@@ -308,7 +328,7 @@ This year I hope you get the slow mornings, the loud laughs, the good news you'v
   <script src="app.js"></script>
 
   <!-- Built by CodeWithAbby Floating Pill Watermark -->
-  <div class="fixed bottom-3 right-3 z-50 pointer-events-none">
+  <div class="folio-watermark-container">
     <div class="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white backdrop-blur-md border-2 border-[var(--fp-ink)] shadow-[2.5px_3.5px_0_var(--fp-ink)] text-xs font-bold text-[var(--f-fg)] transition-all hover:scale-105 active:scale-95">
       <span class="opacity-80">Built by</span>
       <a href="https://codewithabby-portfolio.vercel.app/templates" target="_blank" rel="noopener noreferrer" class="font-bold text-[var(--f-accent)] hover:underline flex items-center gap-1">
