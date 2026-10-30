@@ -1,0 +1,65 @@
+/* Explicit Color & Utility Rules for Birthday Wish Template */
+
+:root {
+  --f-bg: #fff4e3;
+  --f-surface: #fffdf7;
+  --f-fg: #1e2a6e;
+  --f-muted: #59618f;
+  --f-accent: #ff5a4e;
+  --f-onAccent: #fffdf7;
+  --f-ink: #1e2a6e;
+  --f-pop1: #2f57d9;
+  --f-pop2: #ff9ccb;
+  --f-pop3: #5ed3a0;
+  --f-pop4: #ffd23f;
+  --f-lilac: #b9a6ff;
+  --f-floor: #ffc2ba;
+  --f-night: #1a1645;
+  --f-onNight: #fff3dc;
+  --f-lock: #2f57d9;
+  --f-onLock: #fffdf7;
+  --f-hero: #2f57d9;
+  --f-onHero: #fff4e3;
+
+  --fp-ink: var(--f-ink);
+  --fp-card: var(--f-surface);
+  --fp-pop1: var(--f-pop1);
+  --fp-pop2: var(--f-pop2);
+  --fp-pop3: var(--f-pop3);
+  --fp-pop4: var(--f-pop4);
+}
+
+/* Background Color Utilities */
+.bg-theme-bg { background-color: var(--f-bg) !important; }
+.bg-theme-surface { background-color: var(--f-surface) !important; }
+.bg-theme-accent { background-color: var(--f-accent) !important; }
+.bg-theme-pop1 { background-color: var(--f-pop1) !important; }
+.bg-theme-pop2 { background-color: var(--f-pop2) !important; }
+.bg-theme-pop3 { background-color: var(--f-pop3) !important; }
+.bg-theme-pop4 { background-color: var(--f-pop4) !important; }
+.bg-theme-lilac { background-color: var(--f-lilac) !important; }
+.bg-theme-floor { background-color: var(--f-floor) !important; }
+.bg-theme-night { background-color: var(--f-night) !important; }
+.bg-theme-hero { background-color: var(--f-hero) !important; }
+
+/* Text Color Utilities */
+.text-theme-fg { color: var(--f-fg) !important; }
+.text-theme-muted { color: var(--f-muted) !important; }
+.text-theme-accent { color: var(--f-accent) !important; }
+.text-theme-pop1 { color: var(--f-pop1) !important; }
+.text-theme-pop2 { color: var(--f-pop2) !important; }
+.text-theme-pop3 { color: var(--f-pop3) !important; }
+.text-theme-pop4 { color: var(--f-pop4) !important; }
+.text-theme-lilac { color: var(--f-lilac) !important; }
+.text-theme-night { color: var(--f-night) !important; }
+.text-theme-onNight { color: var(--f-onNight) !important; }
+.text-theme-hero { color: var(--f-onHero) !important; }
+
+/* Border Color Utilities */
+.border-theme-ink { border-color: var(--f-ink) !important; }
+.border-theme-accent { border-color: var(--f-accent) !important; }
+.border-theme-pop1 { border-color: var(--f-pop1) !important; }
+
+/* Shadows */
+.shadow-theme-ink { box-shadow: 4px 6px 0 var(--f-ink) !important; }
+.shadow-theme-ink-lg { box-shadow: 8px 12px 0 var(--f-ink) !important; }

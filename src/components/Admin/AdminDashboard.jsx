@@ -33,10 +33,12 @@ export default function AdminDashboard({ session, onLogout }) {
   const [statusFilter, setStatusFilter] = useState("all"); // "all" | "active" | "inactive"
 
   // Creation Form State
-  const [selectedTemplate, setSelectedTemplate] = useState("cute-apology");
+  const [selectedTemplate, setSelectedTemplate] = useState("birthday-wish");
   const [senderName, setSenderName] = useState("");
   const [receiverName, setReceiverName] = useState("");
   const [customSlug, setCustomSlug] = useState("");
+  const [age, setAge] = useState("20");
+  const [birthdayDate, setBirthdayDate] = useState("28 September");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
   const [createdLinkResult, setCreatedLinkResult] = useState(null);
@@ -46,6 +48,8 @@ export default function AdminDashboard({ session, onLogout }) {
   const [editingLink, setEditingLink] = useState(null);
   const [editSender, setEditSender] = useState("");
   const [editReceiver, setEditReceiver] = useState("");
+  const [editAge, setEditAge] = useState("20");
+  const [editBirthdayDate, setEditBirthdayDate] = useState("28 September");
   const [savingEdit, setSavingEdit] = useState(false);
 
   // Delete Confirmation Modal State
@@ -112,11 +116,17 @@ export default function AdminDashboard({ session, onLogout }) {
 
     setCreating(true);
     try {
+      const customData = selectedTemplate === "birthday-wish" ? {
+        age: age.trim() || "20",
+        birthdayDate: birthdayDate.trim() || "28 September"
+      } : {};
+
       const created = await platformApi.createPersonalizedLink({
         templateId: selectedTemplate,
         senderName: senderName.trim(),
         receiverName: receiverName.trim(),
-        customSlug: customSlug.trim()
+        customSlug: customSlug.trim(),
+        customData
       });
 
       setCreatedLinkResult(created);
@@ -153,10 +163,18 @@ export default function AdminDashboard({ session, onLogout }) {
     }
     setSavingEdit(true);
     try {
-      const updated = await platformApi.updateLink(editingLink.id, {
+      const updates = {
         sender_name: editSender.trim(),
         receiver_name: editReceiver.trim()
-      });
+      };
+      if (editingLink.template_id === "birthday-wish") {
+        updates.custom_data = {
+          ...(editingLink.custom_data || {}),
+          age: editAge.trim() || "20",
+          birthdayDate: editBirthdayDate.trim() || "28 September"
+        };
+      }
+      const updated = await platformApi.updateLink(editingLink.id, updates);
       setLinks((prev) => prev.map((l) => (l.id === editingLink.id ? updated : l)));
       setSavingEdit(false);
       setEditingLink(null);
@@ -440,17 +458,33 @@ export default function AdminDashboard({ session, onLogout }) {
                             </div>
                           </td>
 
-                          {/* Couple */}
+                          {/* Couple / Recipient */}
                           <td className="py-3.5 px-4 font-medium text-gray-800">
-                            <span className="text-[#d84b5a]">{link.sender_name}</span>
-                            <span className="text-gray-400 mx-1.5">➔</span>
-                            <span className="text-gray-900 font-semibold">{link.receiver_name}</span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[#d84b5a]">{link.sender_name}</span>
+                              <span className="text-gray-400 mx-1">➔</span>
+                              <span className="text-gray-900 font-semibold">{link.receiver_name}</span>
+                            </div>
+                            {link.template_id === "birthday-wish" && link.custom_data && (
+                              <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-2">
+                                <span className="bg-amber-100/70 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                                  🎂 Age: {link.custom_data.age || "20"}
+                                </span>
+                                <span className="bg-amber-100/70 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                                  📅 {link.custom_data.birthdayDate || "28 Sep"}
+                                </span>
+                              </div>
+                            )}
                           </td>
 
                           {/* Template */}
                           <td className="py-3.5 px-4 text-gray-600">
-                            <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#fcecee] text-[#c33d4b] text-[11px] font-medium border border-[#fad7db]">
-                              {link.template_id}
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
+                              link.template_id === "birthday-wish"
+                                ? "bg-amber-50 text-amber-800 border-amber-200 font-semibold"
+                                : "bg-[#fcecee] text-[#c33d4b] border-[#fad7db]"
+                            }`}>
+                              {link.template_id === "birthday-wish" ? "🎂 Birthday Wish" : link.template_id}
                             </span>
                           </td>
 
@@ -495,9 +529,11 @@ export default function AdminDashboard({ session, onLogout }) {
                                   setEditingLink(link);
                                   setEditSender(link.sender_name);
                                   setEditReceiver(link.receiver_name);
+                                  setEditAge(link.custom_data?.age || "20");
+                                  setEditBirthdayDate(link.custom_data?.birthdayDate || "28 September");
                                 }}
                                 className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
-                                title="Edit names"
+                                title="Edit details"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -528,10 +564,10 @@ export default function AdminDashboard({ session, onLogout }) {
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#f1dede] shadow-sm">
               <div className="mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-['Playfair_Display']">
-                  Generate Personalized Apology Link
+                  Generate Personalized Link
                 </h2>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  Create a dedicated, shareable link for a couple using any registered template.
+                  Create a dedicated, shareable link for birthdays or apologies using any registered template.
                 </p>
               </div>
 
@@ -546,7 +582,7 @@ export default function AdminDashboard({ session, onLogout }) {
                 {/* Template Selector */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-2">
-                    Select Apology Template
+                    Select Template
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {templates.map((tpl) => (
@@ -576,14 +612,16 @@ export default function AdminDashboard({ session, onLogout }) {
                 {/* Sender Name */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
-                    Sender's Name (Who is apologizing)
+                    {selectedTemplate === "birthday-wish"
+                      ? "Sender's / Wish By Name (Who is wishing)"
+                      : "Sender's Name (Who is apologizing)"}
                   </label>
                   <input
                     type="text"
                     required
                     value={senderName}
                     onChange={(e) => setSenderName(e.target.value)}
-                    placeholder="e.g. Gugu, Rahul, Abbas"
+                    placeholder={selectedTemplate === "birthday-wish" ? "e.g. CodeWithAbby, Bestie, Abbas" : "e.g. Gugu, Rahul, Abbas"}
                     className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#EE95BB] transition"
                   />
                 </div>
@@ -591,17 +629,58 @@ export default function AdminDashboard({ session, onLogout }) {
                 {/* Receiver Name */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
-                    Receiver's Name (Who is receiving the apology)
+                    {selectedTemplate === "birthday-wish"
+                      ? "Birthday Person's Name (Whose birthday it is)"
+                      : "Receiver's Name (Who is receiving the apology)"}
                   </label>
                   <input
                     type="text"
                     required
                     value={receiverName}
                     onChange={(e) => setReceiverName(e.target.value)}
-                    placeholder="e.g. Saibun, Priya, Aastha"
+                    placeholder={selectedTemplate === "birthday-wish" ? "e.g. Priya, Simran, Rahul" : "e.g. Saibun, Priya, Aastha"}
                     className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#EE95BB] transition"
                   />
                 </div>
+
+                {/* Birthday Specific Fields (Age Candles + Birthday Date) */}
+                {selectedTemplate === "birthday-wish" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1.5">
+                        🎂 Age / Candles on Cake
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                        placeholder="e.g. 20, 15, 25, 1"
+                        className="w-full px-4 py-2.5 text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+                      />
+                      <span className="text-[11px] text-amber-700 mt-1 block leading-tight">
+                        Cake par yahi candles aayengi (jaise 20 likha toh 2 aur 0 candle cake par lag jayegi).
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1.5">
+                        📅 Birthday Date
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={birthdayDate}
+                        onChange={(e) => setBirthdayDate(e.target.value)}
+                        placeholder="e.g. 28 September, 15 August"
+                        className="w-full px-4 py-2.5 text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+                      />
+                      <span className="text-[11px] text-amber-700 mt-1 block leading-tight">
+                        Phone lock screen aur party room date chip par show hogi.
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Custom Slug (Optional) */}
                 <div>
@@ -796,7 +875,9 @@ export default function AdminDashboard({ session, onLogout }) {
 
             <form onSubmit={handleSaveEdit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Sender Name</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  {editingLink.template_id === "birthday-wish" ? "Sender / Wish By Name" : "Sender Name"}
+                </label>
                 <input
                   type="text"
                   required
@@ -807,7 +888,9 @@ export default function AdminDashboard({ session, onLogout }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Receiver Name</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  {editingLink.template_id === "birthday-wish" ? "Birthday Person's Name" : "Receiver Name"}
+                </label>
                 <input
                   type="text"
                   required
@@ -816,6 +899,38 @@ export default function AdminDashboard({ session, onLogout }) {
                   className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#EE95BB]"
                 />
               </div>
+
+              {editingLink.template_id === "birthday-wish" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-amber-900 mb-1">
+                      🎂 Age / Candle Number on Cake
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editAge}
+                      onChange={(e) => setEditAge(e.target.value)}
+                      placeholder="e.g. 20, 15, 25"
+                      className="w-full px-3.5 py-2 text-sm bg-amber-50/50 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-amber-900 mb-1">
+                      📅 Birthday Date
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editBirthdayDate}
+                      onChange={(e) => setEditBirthdayDate(e.target.value)}
+                      placeholder="e.g. 28 September"
+                      className="w-full px-3.5 py-2 text-sm bg-amber-50/50 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button

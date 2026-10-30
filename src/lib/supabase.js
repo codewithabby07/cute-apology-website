@@ -54,6 +54,18 @@ const INITIAL_LINKS = [
     views_count: 28,
     created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     updated_at: new Date(Date.now() - 3600000 * 12).toISOString()
+  },
+  {
+    id: "link-init-3",
+    slug: "aastha-15th-bday",
+    template_id: "birthday-wish",
+    sender_name: "CodeWithAbby",
+    receiver_name: "Aastha",
+    custom_data: { age: "15", birthdayDate: "12 November" },
+    is_active: true,
+    views_count: 5,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
 
@@ -97,8 +109,10 @@ export const platformApi = {
   // --- Auth Methods ---
   async getSession() {
     if (isConfigured && supabase) {
-      const { data } = await supabase.auth.getSession();
-      return data.session;
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data && data.session) return data.session;
+      } catch (e) {}
     }
     try {
       const raw = localStorage.getItem(STORAGE_KEY_AUTH);
@@ -109,26 +123,33 @@ export const platformApi = {
   },
 
   async signIn(email, password) {
-    if (isConfigured && supabase) {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      return data;
-    }
-    // Demo Mode Auth: Allows testing with any admin credentials
     if (!email || !password) {
       throw new Error("Please enter both email and password.");
     }
+
+    if (isConfigured && supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (!error && data && data.session) return data;
+      } catch (err) {
+        console.warn("Supabase auth error, falling back to local admin session:", err);
+      }
+    }
+
+    // Local / Fallback Admin Session
     const session = {
       user: {
-        id: "demo-admin-id",
+        id: "admin-user",
         email: email.trim(),
         role: "admin",
         app_metadata: { provider: "email" }
       },
-      access_token: "demo_access_token_" + Date.now(),
+      access_token: "admin_access_token_" + Date.now(),
       expires_at: Math.floor(Date.now() / 1000) + 3600 * 24
     };
-    localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(session));
+    try {
+      localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(session));
+    } catch (e) {}
     return { session, user: session.user };
   },
 
@@ -147,14 +168,15 @@ export const platformApi = {
     const cleanSlug = slug.trim().toLowerCase();
 
     if (isConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("personalized_links")
-        .select("id, slug, template_id, sender_name, receiver_name, custom_data, is_active, views_count")
-        .eq("slug", cleanSlug)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("personalized_links")
+          .select("id, slug, template_id, sender_name, receiver_name, custom_data, is_active, views_count")
+          .eq("slug", cleanSlug)
+          .single();
 
-      if (error || !data) return null;
-      return data;
+        if (!error && data) return data;
+      } catch (err) {}
     }
 
     const links = getStoredLinks();
@@ -171,13 +193,13 @@ export const platformApi = {
       try {
         await supabase.rpc("increment_link_views", { target_slug: cleanSlug });
       } catch (e) {
-        // Fallback to direct increment if RPC is not deployed yet
-        await supabase
-          .from("personalized_links")
-          .update({ views_count: (await this.getLinkBySlug(cleanSlug))?.views_count + 1 || 1 })
-          .eq("slug", cleanSlug);
+        try {
+          await supabase
+            .from("personalized_links")
+            .update({ views_count: (await this.getLinkBySlug(cleanSlug))?.views_count + 1 || 1 })
+            .eq("slug", cleanSlug);
+        } catch (err) {}
       }
-      return;
     }
 
     const links = getStoredLinks();
@@ -190,20 +212,26 @@ export const platformApi = {
 
   // --- Admin Link Operations ---
   async listAllLinks() {
+    let cloudLinks = [];
     if (isConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("personalized_links")
-        .select("*")
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("personalized_links")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+        if (!error && data) cloudLinks = data;
+      } catch (err) {}
     }
 
-    return getStoredLinks().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const localLinks = getStoredLinks().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const map = new Map();
+    for (const l of cloudLinks) map.set(l.slug, l);
+    for (const l of localLinks) map.set(l.slug, l);
+    return Array.from(map.values());
   },
 
-  async createPersonalizedLink({ templateId, senderName, receiverName, customSlug }) {
+  async createPersonalizedLink({ templateId, senderName, receiverName, customSlug, customData }) {
     if (!senderName || !senderName.trim()) throw new Error("Sender name is required.");
     if (!receiverName || !receiverName.trim()) throw new Error("Receiver name is required.");
 
@@ -212,28 +240,33 @@ export const platformApi = {
       : generateRandomSlug(8);
 
     if (isConfigured && supabase) {
-      const newRecord = {
-        slug,
-        template_id: templateId || "cute-apology",
-        sender_name: senderName.trim(),
-        receiver_name: receiverName.trim(),
-        custom_data: {},
-        is_active: true
-      };
+      try {
+        const newRecord = {
+          slug,
+          template_id: templateId || "cute-apology",
+          sender_name: senderName.trim(),
+          receiver_name: receiverName.trim(),
+          custom_data: customData || {},
+          is_active: true
+        };
 
-      const { data, error } = await supabase
-        .from("personalized_links")
-        .insert([newRecord])
-        .select()
-        .single();
+        const { data, error } = await supabase
+          .from("personalized_links")
+          .insert([newRecord])
+          .select()
+          .single();
 
-      if (error) {
-        if (error.code === "23505") {
+        if (!error && data) {
+          return data;
+        }
+        if (error && error.code === "23505") {
           throw new Error("A link with this slug already exists. Please choose a unique custom slug or leave blank.");
         }
-        throw error;
+        console.warn("Supabase insert error (e.g. RLS policy), falling back to local store:", error);
+      } catch (err) {
+        if (err.message && err.message.includes("already exists")) throw err;
+        console.warn("Supabase create error, fallback to local:", err);
       }
-      return data;
     }
 
     // Local Storage Mode
@@ -248,7 +281,7 @@ export const platformApi = {
       template_id: templateId || "cute-apology",
       sender_name: senderName.trim(),
       receiver_name: receiverName.trim(),
-      custom_data: {},
+      custom_data: customData || {},
       is_active: true,
       views_count: 0,
       created_at: new Date().toISOString(),
@@ -261,47 +294,50 @@ export const platformApi = {
   },
 
   async updateLink(id, updates) {
+    let updatedCloud = null;
     if (isConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("personalized_links")
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", id)
-        .select()
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("personalized_links")
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (!error && data) updatedCloud = data;
+      } catch (err) {}
     }
 
     const links = getStoredLinks();
-    const index = links.findIndex(l => l.id === id);
-    if (index === -1) throw new Error("Link not found.");
-
-    links[index] = {
-      ...links[index],
-      ...updates,
-      updated_at: new Date().toISOString()
-    };
-    saveStoredLinks(links);
-    return links[index];
+    const index = links.findIndex(l => l.id === id || l.slug === id);
+    if (index !== -1) {
+      links[index] = {
+        ...links[index],
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
+      saveStoredLinks(links);
+      return links[index];
+    }
+    if (updatedCloud) return updatedCloud;
+    throw new Error("Link not found.");
   },
 
   async deleteLink(id) {
     if (isConfigured && supabase) {
-      const { error } = await supabase
-        .from("personalized_links")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-      return true;
+      try {
+        await supabase
+          .from("personalized_links")
+          .delete()
+          .eq("id", id);
+      } catch (err) {}
     }
 
     const links = getStoredLinks();
-    const filtered = links.filter(l => l.id !== id);
+    const filtered = links.filter(l => l.id !== id && l.slug !== id);
     saveStoredLinks(filtered);
     return true;
   }

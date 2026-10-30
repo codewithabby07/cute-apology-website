@@ -11,7 +11,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!assets/|intro.gif|logo.webp|bundle.js|styles.css|.*\\..*).*)",
+      "source": "/((?!assets/|birthday-wish-template/|intro.gif|logo.webp|bundle.js|styles.css|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

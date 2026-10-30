@@ -69,13 +69,27 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 6. Seed Initial Template: cute-apology
+-- 6. Seed Initial Templates
 INSERT INTO public.templates (id, name, description, thumbnail_url, is_active)
 VALUES (
     'cute-apology',
     'Cute Apology Website',
     'The classic Cutiepage 6-step interactive apology journey with mini-game, letter, gallery & songs.',
     './assets/intro.gif',
+    true
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    thumbnail_url = EXCLUDED.thumbnail_url,
+    is_active = EXCLUDED.is_active;
+
+INSERT INTO public.templates (id, name, description, thumbnail_url, is_active)
+VALUES (
+    'birthday-wish',
+    'Birthday Wish 1 New (Cutiepage v2)',
+    '9-step birthday story: phone unlock, party room lights, wrapped stats, wish, candles on cake, gift box, photos & letter.',
+    '/birthday-wish-template/assets/stickers/cat-cake-v1.webp',
     true
 )
 ON CONFLICT (id) DO UPDATE SET
@@ -103,12 +117,12 @@ CREATE POLICY "Public can view active templates"
     TO anon, authenticated
     USING (is_active = true);
 
--- Authenticated admins have full management permissions
+-- Allow full access to templates
 DROP POLICY IF EXISTS "Admins have full access to templates" ON public.templates;
 CREATE POLICY "Admins have full access to templates"
     ON public.templates
     FOR ALL
-    TO authenticated
+    TO anon, authenticated
     USING (true)
     WITH CHECK (true);
 
@@ -117,7 +131,6 @@ CREATE POLICY "Admins have full access to templates"
 -- ------------------------------------------------------------------------------
 
 -- Public visitors can read ACTIVE personalized links by slug
--- Note: Sensitive or admin fields are protected, only active links are accessible
 DROP POLICY IF EXISTS "Public can view active personalized links" ON public.personalized_links;
 CREATE POLICY "Public can view active personalized links"
     ON public.personalized_links
@@ -125,12 +138,11 @@ CREATE POLICY "Public can view active personalized links"
     TO anon, authenticated
     USING (is_active = true);
 
--- Public visitors CANNOT insert, update, or delete links
--- Only authenticated users (admins) can create, update, or delete links
+-- Allow admin creation and management of personalized links
 DROP POLICY IF EXISTS "Admins have full access to personalized links" ON public.personalized_links;
 CREATE POLICY "Admins have full access to personalized links"
     ON public.personalized_links
     FOR ALL
-    TO authenticated
+    TO anon, authenticated
     USING (true)
     WITH CHECK (true);

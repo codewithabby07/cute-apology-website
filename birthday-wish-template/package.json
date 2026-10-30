@@ -1,0 +1,19 @@
+{
+  "name": "birthday-wish-template",
+  "version": "1.0.0",
+  "description": "Birthday Wish 1 New — High-fidelity independent recreation of the Cutiepage cp-birthday-wish-v2 website template",
+  "main": "dev-server.js",
+  "scripts": {
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js"
+  },
+  "keywords": [
+    "birthday-wish",
+    "template",
+    "cutiepage",
+    "sticker-zine",
+    "celebration"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

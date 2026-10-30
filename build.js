@@ -58,6 +58,7 @@ copyFile(path.join(__dirname, 'styles.css'), path.join(distDir, 'styles.css'));
 copyFile(path.join(__dirname, 'intro.gif'), path.join(distDir, 'intro.gif'));
 copyFile(path.join(__dirname, 'logo.webp'), path.join(distDir, 'logo.webp'));
 copyDir(path.join(__dirname, 'assets'), path.join(distDir, 'assets'));
+copyDir(path.join(__dirname, 'birthday-wish-template'), path.join(distDir, 'birthday-wish-template'));
 
 // Build root bundle.js and dist/bundle.js
 Promise.all([
