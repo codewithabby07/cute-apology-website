@@ -208,24 +208,54 @@
       animation: mascot-wiggle 0.5s ease-in-out !important;
     }
 
-    /* CodeWithAbby Watermark Pill Position: Always cleanly positioned above the bottom navigation bar so left/right buttons are never hidden */
-    .folio-watermark-container {
-      position: fixed;
-      right: 14px;
-      bottom: 74px;
-      z-index: 40;
+    /* Bottom Navigation & Watermark Dock: Watermark is cleanly placed directly underneath the slide buttons */
+    .folio-story-footer {
+      position: sticky;
+      bottom: 8px;
+      z-index: 30;
+      margin-top: -85px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
       pointer-events: none;
     }
-    @media (min-width: 768px) {
-      .folio-watermark-container {
-        bottom: 74px;
-        right: 18px;
-      }
+    .folio-story-footer .folio-story-nav {
+      pointer-events: auto;
+      position: static !important;
+      margin: 0 auto !important;
     }
-    @media (max-width: 767px) {
-      .folio-site .folio-sound {
-        bottom: 118px !important;
-      }
+    .folio-watermark-dock {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .folio-watermark-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 12px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--f-bg, #fff) 88%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid var(--fp-ink, #1e2a6e);
+      box-shadow: 2px 2px 0 var(--fp-ink, #1e2a6e);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--f-fg, #1e2a6e);
+      text-decoration: none;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .folio-watermark-link:hover {
+      transform: scale(1.04);
+      background: #ffffff;
+    }
+    .folio-watermark-link strong {
+      color: var(--f-accent, #ff5a4e);
+    }
+    .folio-sound {
+      bottom: 84px !important;
     }
   </style>
 </head>
@@ -292,22 +322,33 @@ This year I hope you get the slow mornings, the loud laughs, the good news you'v
     </div>
 
 
-    <!-- Bottom Navigation Bar matching live reference -->
-    <nav class="folio-story-nav" aria-label="Story">
-      <button type="button" class="folio-story-button" id="story-prev-btn" disabled="" aria-label="Previous">‹</button>
-      <ol class="folio-story-dots" id="story-dots" aria-label="Step 1 of 9">
-        <li class="is-active" aria-current="step"></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-      </ol>
-      <button type="button" class="folio-story-button" id="story-next-btn" aria-label="Next">›</button>
-    </nav>
+    <!-- Bottom Navigation Bar & Watermark Directly Below Buttons -->
+    <div class="folio-story-footer">
+      <nav class="folio-story-nav" aria-label="Story">
+        <button type="button" class="folio-story-button" id="story-prev-btn" disabled="" aria-label="Previous">‹</button>
+        <ol class="folio-story-dots" id="story-dots" aria-label="Step 1 of 9">
+          <li class="is-active" aria-current="step"></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ol>
+        <button type="button" class="folio-story-button" id="story-next-btn" aria-label="Next">›</button>
+      </nav>
+
+      <!-- Watermark directly underneath the slide buttons -->
+      <div class="folio-watermark-dock">
+        <a href="https://codewithabby-portfolio.vercel.app/templates" target="_blank" rel="noopener noreferrer" class="folio-watermark-link">
+          <span>Built by</span>
+          <strong>CodeWithAbby</strong>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+      </div>
+    </div>
 
     <!-- Floating Sound Chip matching live reference -->
     <div class="folio-sound" data-sound-chip="">
@@ -326,17 +367,6 @@ This year I hope you get the slow mornings, the loud laughs, the good news you'v
   <script src="sound.js"></script>
   <script src="confetti.js"></script>
   <script src="app.js"></script>
-
-  <!-- Built by CodeWithAbby Floating Pill Watermark -->
-  <div class="folio-watermark-container">
-    <div class="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white backdrop-blur-md border-2 border-[var(--fp-ink)] shadow-[2.5px_3.5px_0_var(--fp-ink)] text-xs font-bold text-[var(--f-fg)] transition-all hover:scale-105 active:scale-95">
-      <span class="opacity-80">Built by</span>
-      <a href="https://codewithabby-portfolio.vercel.app/templates" target="_blank" rel="noopener noreferrer" class="font-bold text-[var(--f-accent)] hover:underline flex items-center gap-1">
-        CodeWithAbby
-        <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-      </a>
-    </div>
-  </div>
 
 </body>
 </html>
